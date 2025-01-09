@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+message IntegrityReq {
+    bytes doc = 1;
+}
+message SignatureStatus {
+    string pubkey_fp = 1;
+    bool intact = 2;
+    bool changed = 3;
+    string cn = 4;
+    string email = 5;
+    string cert = 6;
+}
+message IntegrityRes {
+    repeated SignatureStatus signs = 1;
+}
+
+message ImageStamp {
+    bytes img = 1;
+    double x1 = 2;
+    double y1 = 3;
+    double x2 = 4;
+    double y2 = 5;
+    uint64 page = 6;
+}
+message SignDocReq {
+    bytes doc = 1;
+    string pubkey_fp = 2;
+    ImageStamp image_stamp = 3;
+    uint64 companyid = 4;
+}
+message SignDocRes {
+    bytes signed_doc = 1;
+}
+
+service BlockPenPdf {
+    rpc Integrity(IntegrityReq) returns (IntegrityRes){}
+    rpc SignDoc(SignDocReq) returns (SignDocRes){}
+}

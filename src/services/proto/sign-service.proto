@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+
+package blockpensign;
+
+message Certificate {
+    string data = 1;
+}
+message CertificateFingerprint {
+    string data = 1;
+}
+
+
+message Empty {}
+
+message CertChain {
+    repeated Certificate certs = 1;
+}
+
+message CertificateOptions {
+    string comman_name = 1;
+    string email = 2;
+    string organization = 3;
+    string country = 4;
+    bool isCA = 5;
+}
+
+message CreateCertificateReq {
+    int64 companyid = 1;
+    CertificateFingerprint ca = 2;
+    CertificateOptions opts = 3;
+}
+
+message GetCertChainReq {
+    int64 companyid = 1;
+}
+message GetCertReq {
+    int64 companyid = 1;
+    CertificateFingerprint fingerprint = 2;
+}
+message CreateCompanyReq {
+    string company_name = 1;
+    string admin_email = 2;
+    string country = 3;
+}
+message CreateCompanyRes{
+    int64 companyid = 1;
+    Certificate cert = 2;
+}
+message ChainVerifyReq{
+    int64 companyid = 1;
+    CertificateFingerprint cert = 2;
+    bool full_chain = 3;
+}
+message ChainVerifyRes{
+    bool valid = 1;
+    CertChain certs = 2;
+}
+enum DigestAlgo{
+  ALGO_SHA256 = 0;
+  ALGO_KECCAK = 1;
+  ALGO_NONE = 2;
+}
+message SignDataReq{
+    int64 companyid = 1;
+    CertificateFingerprint cert = 2;
+    bytes data = 3;
+    DigestAlgo algo = 4;
+}
+message SignDataRes{
+    bytes data = 2;
+}
+
+service BlockPenSign {
+    rpc GetCertChain(GetCertChainReq) returns (CertChain){}
+    rpc GetCert(GetCertReq) returns (Certificate){}
+    rpc CreateCertificate(CreateCertificateReq) returns (Certificate){}
+    rpc CreateCompany(CreateCompanyReq) returns (CreateCompanyRes){}
+    rpc ChainVerify(ChainVerifyReq) returns (ChainVerifyRes){}
+    rpc SignData(SignDataReq) returns (SignDataRes){}
+}
