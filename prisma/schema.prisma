@@ -45,14 +45,15 @@ model Company {
 }
 
 model Document {
-  id              String           @id @default(uuid())
-  title           String?
-  description     String?
-  userId          String // Document creator
-  user            User             @relation("DocumentOwner", fields: [userId], references: [id])
-  companyId       Int
-  company         Company          @relation(fields: [companyId], references: [id])
-  status          DocumentStatus   @default(DRAFT)
+  id          String         @id @default(uuid())
+  title       String?
+  description String?
+  userId      String // Document creator
+  user        User           @relation("DocumentOwner", fields: [userId], references: [id])
+  companyId   Int
+  company     Company        @relation(fields: [companyId], references: [id])
+  status      DocumentStatus @default(DRAFT)
+
   fileUrl         String // Azure storage URL
   fileHash        String? // SHA256 hash of the document
   blockchainDocId String? // Document ID on blockchain
@@ -174,17 +175,18 @@ model BlockchainWallet {
 }
 
 model ApiKey {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   companyId Int
-  company   Company  @relation(fields: [companyId], references: [id])
-  key       String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isActive  Boolean  @default(true)
-  isDeleted Boolean  @default(false)
-  isRevoked Boolean  @default(false)
+  company   Company   @relation(fields: [companyId], references: [id])
+  key       String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  isActive  Boolean   @default(true)
+  isDeleted Boolean   @default(false)
+  isRevoked Boolean   @default(false)
   user      User[]
   lastUsed  DateTime?
+
   @@map("api_keys")
 }
 
@@ -212,6 +214,7 @@ enum DocumentStatus {
   EXPIRED
   REJECTED
   REVOKED
+  SIGNED
 }
 
 enum SignerStatus {

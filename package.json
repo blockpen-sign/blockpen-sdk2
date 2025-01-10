@@ -16,7 +16,7 @@
     "@azure/storage-blob": "^12.26.0",
     "@grpc/grpc-js": "^1.12.5",
     "@grpc/proto-loader": "^0.7.13",
-    "@prisma/client": "^6.2.1",
+    "@prisma/client": "6.2.1",
     "@tanstack/react-query": "^5.62.8",
     "axios": "^1.7.9",
     "constants": "link:@grpc/grpc-js/build/src/constants",

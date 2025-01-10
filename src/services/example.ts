@@ -1,6 +1,6 @@
 import { BlockchainService } from './blockchainService';
 import { CONTRACT_ABI } from '@/constants/contract-abi';
-import { prisma } from '@/lib/pisma';
+import { DocumentStatus, prisma } from '@/lib/pisma';
 import { BlockchainEvent } from '@/types/blockchain';
 
 export class DocumentService {
@@ -17,7 +17,7 @@ export class DocumentService {
 
   private async handleDocumentCreated(event: BlockchainEvent['DocumentCreated']) {
     await prisma.document.update({
-      where: { blockchainDocId: event.docID },
+      where: { id: event.docID },
       data: {
         status: 'PENDING',
         metadata: {
@@ -30,7 +30,7 @@ export class DocumentService {
 
   private async handleDocumentSigned(event: BlockchainEvent['DocumentSigned']) {
     await prisma.document.update({
-      where: { blockchainDocId: event.docID },
+      where: { id: event.docID },
       data: {
         metadata: {
           currentSigners: event.size,
@@ -43,9 +43,9 @@ export class DocumentService {
   private async handleDocumentLocked(event: BlockchainEvent['DocumentLocked']) {
     const doc = await this.blockchainService.getDocumentByID(event.docID);
     await prisma.document.update({
-      where: { blockchainDocId: event.docID },
+      where: { id: event.docID },
       data: {
-        status: 'SIGNED',
+        status: DocumentStatus.COMPLETED,
         metadata: {
           finalHash: doc.finalHash,
           isLocked: true
