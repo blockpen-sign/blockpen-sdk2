@@ -62,6 +62,7 @@ interface StorageConfig {
 }
 
 export interface Config {
+  grpc: any;
   env: string;
   pdf: PdfConfig;
   signService: SignServiceConfig;
@@ -73,6 +74,21 @@ export interface Config {
     gasLimit: string;
     confirmations: number;
   };
+  baseUrl?: string;
+  apiKey?: string;
+  timeout?: number;
+  jwt?: {
+    secret: string;
+    expiresIn: string;
+  };
+  azure?: {
+    storageConnectionString: string;
+    containerName: string;
+    communicationServiceConnectionString: string;
+  };
+  email?: {
+    senderAddress: string;
+  };
 }
 
 // Load and validate environment variables
@@ -80,7 +96,7 @@ const env = loadEnvConfig();
 
 export const config: Config = {
   env: env.NODE_ENV || 'development',
-  
+
   pdf: {
     service: {
       host: env.PDF_SERVICE_HOST || 'localhost',
@@ -122,5 +138,10 @@ export const config: Config = {
     privateKey: env.BLOCKCHAIN_PRIVATE_KEY || '',
     gasLimit: env.GAS_LIMIT || '3000000',
     confirmations: parseInt(env.CONFIRMATIONS || '1')
+  },
+  grpc: {
+    host: env.GRPC_HOST || 'localhost',
+    port: parseInt(env.GRPC_PORT || '50051')
+
   }
 };

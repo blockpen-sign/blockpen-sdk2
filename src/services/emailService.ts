@@ -5,7 +5,7 @@ export class EmailService {
   private client: EmailClient;
 
   constructor() {
-    if (!config.azure.communicationServiceConnectionString) {
+    if (!config.azure || !config.azure.communicationServiceConnectionString) {
       throw new Error('Azure Communication Service connection string is not defined');
     }
     this.client = new EmailClient(config.azure.communicationServiceConnectionString);
@@ -19,7 +19,7 @@ export class EmailService {
     try {
         
       await this.client.beginSend({
-        senderAddress: config.email.senderAddress ||"",
+        senderAddress: config.email?.senderAddress ?? "",
         content: {
           subject: `Signature Required: ${documentName}`,
           plainText: `Please sign the document: ${signingLink}`,
@@ -48,7 +48,7 @@ export class EmailService {
     downloadLink: string
   ): Promise<void> {
     await this.client.beginSend({
-      senderAddress: config.email.senderAddress || "",
+      senderAddress: (config.email?.senderAddress) || "",
       content: {
         subject: `Document Signed: ${documentName}`,
         plainText: `The document has been signed: ${downloadLink}`,

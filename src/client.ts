@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import { Config } from './config';
 // import { Config } from './types';
 
 export class DocumentClient {

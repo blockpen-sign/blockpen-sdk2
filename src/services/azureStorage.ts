@@ -6,7 +6,7 @@ export class AzureStorageService {
   private containerName: string;
 
   constructor() {
-    if (!config.azure.storageConnectionString) {
+    if (!config.azure || !config.azure.storageConnectionString) {
       throw new Error('Azure storage connection string is not defined');
     }
     this.blobServiceClient = BlobServiceClient.fromConnectionString(

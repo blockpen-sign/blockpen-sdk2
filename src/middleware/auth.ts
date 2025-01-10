@@ -20,6 +20,9 @@ export const authenticateToken = async (
   }
 
   try {
+    if (!config.jwt || !config.jwt.secret) {
+      return res.status(500).json({ error: 'JWT configuration error' });
+    }
     const decoded = verify(token, config.jwt.secret as string);
     req.user = decoded;
     next();

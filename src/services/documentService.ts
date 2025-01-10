@@ -1,7 +1,7 @@
 
 // src/services/documentService.ts (Updated)
 import { BlockchainService } from './blockchainService';
-
+import {DocumentStatus} from "prisma";
 import { createHash } from 'crypto';
 import { prisma } from '@/lib/pisma';
 import { AzureStorageService } from './azureStorage';
@@ -257,7 +257,7 @@ export class DocumentService {
       await prisma.document.update({
         where: { id: documentId },
         data: {
-          status: 'SIGNED',
+          status: DocumentStatus.SIGNED ,
           fileUrl: signedFileUrl
         }
       });

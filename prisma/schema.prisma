@@ -1,0 +1,230 @@
+// prisma/schema.prisma
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id         String      @id @default(uuid())
+  email      String      @unique
+  name       String
+  companyId  Int
+  company    Company     @relation(fields: [companyId], references: [id])
+  role       UserRole    @default(USER)
+  documents  Document[]  @relation("DocumentOwner")
+  signatures Signature[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  apiKeys    ApiKey[]
+
+  @@map("users")
+}
+
+model Company {
+  id               Int               @id
+  name             String
+  adminEmail       String
+  country          String
+  rootCertificate  String? // PEM format root certificate
+  users            User[]
+  documents        Document[]
+  certificates     Certificate[]
+  blockchainWallet BlockchainWallet?
+  subscriptionId   String? // For billing integration
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  SigningTemplate  SigningTemplate[]
+  ApiKey           ApiKey[]
+
+  @@map("companies")
+}
+
+model Document {
+  id              String           @id @default(uuid())
+  title           String?
+  description     String?
+  userId          String // Document creator
+  user            User             @relation("DocumentOwner", fields: [userId], references: [id])
+  companyId       Int
+  company         Company          @relation(fields: [companyId], references: [id])
+  status          DocumentStatus   @default(DRAFT)
+  fileUrl         String // Azure storage URL
+  fileHash        String? // SHA256 hash of the document
+  blockchainDocId String? // Document ID on blockchain
+  signingTemplate SigningTemplate? @relation(fields: [templateId], references: [id])
+  templateId      String?
+  signers         DocumentSigner[]
+  signatures      Signature[]
+  auditLogs       AuditLog[]
+  metadata        Json? // Additional document metadata
+  expiresAt       DateTime? // Document expiration date
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  SignatureField  SignatureField[]
+
+  @@map("documents")
+}
+
+model DocumentSigner {
+  id              String           @id @default(uuid())
+  documentId      String
+  document        Document         @relation(fields: [documentId], references: [id])
+  email           String
+  name            String?
+  order           Int // Signing order sequence
+  status          SignerStatus     @default(PENDING)
+  signatureFields SignatureField[]
+  signature       Signature?       @relation(fields: [signatureId], references: [id])
+  expiresAt       DateTime?
+  notifiedAt      DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  signatureId     String?
+
+  @@map("document_signers")
+}
+
+model SignatureField {
+  id         String         @id @default(uuid())
+  documentId String
+  document   Document       @relation(fields: [documentId], references: [id])
+  signerId   String
+  signer     DocumentSigner @relation(fields: [signerId], references: [id])
+  type       FieldType      @default(SIGNATURE)
+  required   Boolean        @default(true)
+  page       Int
+  x          Float
+  y          Float
+  width      Float
+  height     Float
+  signedAt   DateTime?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@map("signature_fields")
+}
+
+model Signature {
+  id              String           @id @default(uuid())
+  documentId      String
+  document        Document         @relation(fields: [documentId], references: [id])
+  userId          String
+  user            User             @relation(fields: [userId], references: [id])
+  certificateId   String
+  certificate     Certificate      @relation(fields: [certificateId], references: [id])
+  signatureData   String // Base64 encoded signature
+  visualSignature String? // Base64 encoded visual signature image
+  blockchainTx    String? // Blockchain transaction hash
+  coordinates     Json? // Signature placement coordinates
+  metadata        Json? // Additional signature metadata
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  DocumentSigner  DocumentSigner[]
+
+  @@map("signatures")
+}
+
+model Certificate {
+  id           String      @id @default(uuid())
+  companyId    Int
+  company      Company     @relation(fields: [companyId], references: [id])
+  fingerprint  String      @unique // SHA256 fingerprint
+  publicKey    String // PEM format public key
+  privateKey   String? // Encrypted private key (if stored)
+  isCA         Boolean     @default(false)
+  issuerCertId String? // Parent CA certificate ID
+  validFrom    DateTime
+  validTo      DateTime
+  metadata     Json?
+  signatures   Signature[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@map("certificates")
+}
+
+model SigningTemplate {
+  id        String     @id @default(uuid())
+  name      String
+  companyId Int
+  company   Company    @relation(fields: [companyId], references: [id])
+  fields    Json // Template field positions and types
+  documents Document[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("signing_templates")
+}
+
+model BlockchainWallet {
+  id         String   @id @default(uuid())
+  companyId  Int      @unique
+  company    Company  @relation(fields: [companyId], references: [id])
+  address    String   @unique
+  privateKey String? // Encrypted private key
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("blockchain_wallets")
+}
+
+model ApiKey {
+  id        String   @id @default(uuid())
+  companyId Int
+  company   Company  @relation(fields: [companyId], references: [id])
+  key       String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+  isDeleted Boolean  @default(false)
+  isRevoked Boolean  @default(false)
+  user      User[]
+  lastUsed  DateTime?
+  @@map("api_keys")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id])
+  action     String // Action performed
+  userId     String? // User who performed the action
+  metadata   Json? // Additional audit data
+  createdAt  DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum DocumentStatus {
+  DRAFT
+  PENDING
+  COMPLETED
+  EXPIRED
+  REJECTED
+  REVOKED
+}
+
+enum SignerStatus {
+  PENDING
+  SIGNED
+  REJECTED
+  EXPIRED
+}
+
+enum FieldType {
+  SIGNATURE
+  INITIAL
+  DATE
+  TEXT
+  CHECKBOX
+}

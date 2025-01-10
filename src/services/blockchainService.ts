@@ -56,7 +56,7 @@ export class BlockchainService extends EventEmitter {
 
   private async waitForTransaction(tx: ContractTransaction): Promise<void> {
     try {
-      const receipt = await this.provider.waitForTransaction( config.blockchain.confirmations);
+      const receipt = await this.provider.waitForTransaction(tx.data, config.blockchain.confirmations);
       if (receipt === null || receipt.status === 0) {
         throw new Error('Transaction failed');
       }
@@ -71,15 +71,15 @@ export class BlockchainService extends EventEmitter {
       // Generate unique docID using timestamp and random number
       const timestamp = Date.now();
       const random = Math.floor(Math.random() * 1000000);
-      const docID = ethers.getBigInt.from(timestamp).mul(1000000).add(random);
+      const docID = BigInt(timestamp) * BigInt(1000000) + BigInt(random);
 
-      const gasPrice = await (this.provider as ethers.JsonRpcProvider).getGasPrice();
+      const gasPrice = await this.provider.getFeeData();
       const tx = await this.contract.newDocument(
         initialDigest,
         docID,
         signers,
         {
-          gasPrice: gasPrice.mul(120).div(100), // Add 20% to current gas price
+          gasPrice: gasPrice.gasPrice, // Add 20% to current gas price
           gasLimit: config.blockchain.gasLimit
         }
       );
@@ -99,14 +99,14 @@ export class BlockchainService extends EventEmitter {
     isLastSigner: boolean
   ): Promise<void> {
     try {
-      const gasPrice = await this.provider.getGasPrice();
+      const gasPrice = (await this.provider.getFeeData()).gasPrice;
       const tx = await this.contract.signDocument(
         docId,
         signedDigest,
         currentSigners + 1,
         isLastSigner,
         {
-          gasPrice: gasPrice.mul(120).div(100),
+          gasPrice: gasPrice ? ethers.toBigInt(gasPrice) : ethers.parseUnits('20', 'gwei'),
           gasLimit: config.blockchain.gasLimit
         }
       );
@@ -138,7 +138,7 @@ export class BlockchainService extends EventEmitter {
       
       return {
         initialDigest,
-        signers: size.map((s: BigNumber) => s.toNumber()),
+        signers: Array.from({ length: size.toNumber() }, (_, i) => i),
         signedDigests
       };
     } catch (error) {

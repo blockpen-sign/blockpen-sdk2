@@ -21,6 +21,8 @@ interface EnvConfig {
   BLOCKCHAIN_PRIVATE_KEY?: string;
   GAS_LIMIT?: string;
   CONFIRMATIONS?: string;
+  GRPC_HOST?: string;
+  GRPC_PORT?: string;
 }
 
 export function loadEnvConfig(): EnvConfig {
