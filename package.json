@@ -9,7 +9,9 @@
   "main": "index.ts",
   "scripts": {
     "build": "tsc",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "prod": "node dist/index.js"
   },
   "dependencies": {
     "@azure/communication-email": "^1.0.0",
