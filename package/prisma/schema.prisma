@@ -1,12 +1,21 @@
-// prisma/schema.prisma
-datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+
+generator kysely {
+  provider = "prisma-kysely"
 }
 
 generator client {
   provider = "prisma-client-js"
+}
+
+generator zod {
+  provider = "zod-prisma-types"
+}
+
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
