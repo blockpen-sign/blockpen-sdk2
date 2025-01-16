@@ -1,0 +1,1 @@
+declare module '@blockpen-sdk2/tailwind-config';

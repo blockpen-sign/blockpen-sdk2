@@ -1,5 +1,6 @@
 {
   "name": "blockpen-sdk2",
+  "private": true,
   "version": "0.0.1",
   "description": "",
   "license": "ISC",
@@ -8,27 +9,31 @@
   "types": "dist/index.d.ts",
   "main": "index.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "turbo run build",
     "prepublishOnly": "npm run build",
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "prod": "node dist/index.js"
+    "dev": "turbo run dev",
+    "prod": "node dist/index.js",
+    "lint": "turbo run lint",
+    "format": "turbo run format",
+    "test": "turbo run test",
+    "clean": "turbo run clean"
   },
+ 
   "dependencies": {
     "@azure/communication-email": "^1.0.0",
     "@azure/storage-blob": "^12.26.0",
     "@grpc/grpc-js": "^1.12.5",
     "@grpc/proto-loader": "^0.7.13",
-    "@prisma/client": "6.2.1",
+    "@prisma/client": "*",
     "@tanstack/react-query": "^5.62.8",
     "axios": "^1.7.9",
-    "constants": "link:@grpc/grpc-js/build/src/constants",
     "ethers": "^6.13.5",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
-    "prisma": "^6.2.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.1.0"
+    "react-router-dom": "^7.1.0",
+    "@blockpen-sdk2/prisma": "workspace:*"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
@@ -36,5 +41,9 @@
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.2",
     "typescript": "^5.7.2"
-  }
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+    
 }

@@ -1,36 +1,45 @@
 {
   "name": "@blockpen-sdk2/prisma",
-  "version": "0.0.0",
-  "description": "",
-  "main": "index.ts",
-  "types": "index.ts",
+  "version": "0.0.1",
+  "description": "Database layer with Prisma and Kysely integration",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "prisma"
+  ],
   "scripts": {
-    "build": "prisma generate",
-    "prebuild": "prisma generate",
+    "build": "tsc && prisma generate",
+    "dev": "tsc -w",
     "format": "prisma format",
-    "clean": "rimraf node_modules",
-    "post-install": "prisma generate",
+    "clean": "rimraf dist node_modules",
+    "prebuild": "npm run clean && prisma generate",
+    "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate-dev": "prisma migrate dev --skip-seed",
     "prisma:migrate-deploy": "prisma migrate deploy",
     "prisma:migrate-reset": "prisma migrate reset",
-    "prisma:seed": "prisma db seed",
-    "prisma:studio": "prisma studio"
+    "prisma:seed": "tsx prisma/seed.ts",
+    "prisma:studio": "prisma studio",
+    "generate:types": "prisma generate && tsx scripts/generate-types.ts",
+    "type-check": "tsc --noEmit"
   },
-  "keywords": [],
-  "license": "ISC",
   "dependencies": {
-    "@prisma/client": "6.2.1",
+    "@prisma/client": "^6.2.1",
     "kysely": "^0.27.5",
     "prisma": "^6.2.1",
-    "ts-pattern": "^5.6.0"
+    "prisma-extension-kysely": "^3.0.0",
+    "ts-pattern": "^5.6.0",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@types/node": "^20.11.24",
     "dotenv": "^16.4.7",
     "dotenv-cli": "^8.0.0",
     "prisma-kysely": "^1.8.0",
-    "tsx": "^4.19.2",
-    "typescript": "^5.7.3",
+    "rimraf": "^5.0.5",
+    "tsx": "^4.7.1",
+    "typescript": "^5.3.3",
     "zod-prisma-types": "^3.2.1"
   }
 }
