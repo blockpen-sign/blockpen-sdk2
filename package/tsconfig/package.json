@@ -3,12 +3,24 @@
   "version": "0.0.0",
   "license": "MIT",
   "private": true,
+  "type": "module",
   "scripts": {
-    "clean": "rimraf node_modules"
+    "clean": "rm -rf node_modules .turbo"
+  },
+  "devDependencies": {
+    "@tsconfig/strictest": "^2.0.5"
   },
   "files": [
     "base.json",
     "nextjs.json",
     "react-library.json"
-  ]
+  ],
+  "exports": {
+    ".": {
+      "import": "./base.json",
+      "require": "./base.json"
+    },
+    "./nextjs.json": "./nextjs.json",
+    "./react-library.json": "./react-library.json"
+  }
 }

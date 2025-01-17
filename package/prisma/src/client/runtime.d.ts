@@ -1,1 +1,1 @@
-export * from "@prisma/client/runtime";
+export * from "./runtime";
